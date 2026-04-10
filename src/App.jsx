@@ -126,7 +126,7 @@ function App() {
           };
 
           return (
-            <div key={i} style={{ width: 300, textAlign: "center" }}>
+            <div key={i} style={{ flex: "1 1 0", minWidth: 0, textAlign: "center" }}>
               <h3>{labels[i]}</h3>
               <Doughnut data={data} options={options} />
             </div>
