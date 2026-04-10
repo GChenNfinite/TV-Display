@@ -97,7 +97,7 @@ function App() {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center"}}>
+      <div style={{ display: "flex", gap: 20, flexWrap: "nowrap", justifyContent: "center"}}>
         {values.map((val, i) => {
           const data = {
             labels: [labels[i], "Remaining"],
