@@ -136,7 +136,7 @@ function App() {
         <p style={{ margin: 0, color: '#666', fontWeight: 'bold', fontSize: '1.2rem' }}>
              📍 {weather.city}
         </p>
-        <div style={{ fontSize: 72, fontWeight: "bold" }}>
+        <div style={{ padding: 20, fontSize: 72, fontWeight: "bold" }}>
           <Clock />
         </div>
       </div>
@@ -175,7 +175,7 @@ function App() {
       <div style={{ 
         display: "flex", 
         justifyContent: "space-around", 
-        padding: '30px', 
+        padding: '5px', 
         background: '#ffffff', 
         color: 'white', 
         borderRadius: '15px',
@@ -194,7 +194,7 @@ function App() {
 
           {/* We override the global h2 color by using inline color here */}
           <h2 style={{ 
-            fontSize: "4rem", 
+            fontSize: "3rem", 
             margin: "10px 0", 
             color: '#000000', // FORCE WHITE
             lineHeight: '1' 
@@ -215,7 +215,7 @@ function App() {
             Outdoor Humidity
           </div>
           <h2 style={{ 
-            fontSize: "4rem", 
+            fontSize: "3rem", 
             margin: "10px 0", 
             color: '#000000', // FORCE WHITE
             lineHeight: '1'
