@@ -59,7 +59,7 @@ function App() {
   const requestIdRef = useRef(0);
   const [values, setValues] = useState([0, 0, 0, 0]);
 
-  const [weather, setWeather] = useState({ temp: "--", humidity: "--", city: "Loading..."})
+  const [weather, setWeather] = useState({ temp: "--", humidity: "--", city: "Loading...", iconUrl: ""})
 
   // 1. Function to fetch weather from the Internet
   const fetchWeather = async () => {
@@ -70,11 +70,15 @@ function App() {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      if (data.main) {
+      if (data.main && data.weather) {
+        const iconCode = data.weather[0].icon;
+        const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+
         setWeather({
           temp: Math.round(data.main.temp),
           humidity: data.main.humidity,
-          city: data.name
+          city: data.name,
+          iconUrl: iconUrl
         });
       }
     } catch (error) {
@@ -142,7 +146,7 @@ function App() {
       </div>
 
       {/* CHARTS */}
-      <div style={{ display: "flex", gap: 0, flexWrap: "nowrap", justifyContent: "center", marginBottom: 20 }}>
+      <div style={{ display: "flex", gap: 0, flexWrap: "nowrap", justifyContent: "center", marginBottom: 0 }}>
         {values.map((val, i) => {
           const data = {
             labels: [labels[i], "Remaining"],
@@ -175,12 +179,13 @@ function App() {
       <div style={{ 
         display: "flex", 
         justifyContent: "space-around", 
-        padding: '5px', 
+        padding: 10,
+        marginTop: 0, 
         background: '#ffffff', 
         color: 'white', 
-        borderRadius: '15px',
         alignItems: 'center'
       }}>
+
         <div style={{ textAlign: 'center' }}>
           {/* Using a <div> instead of <span> to avoid inherited text styles */}
           <div style={{ 
@@ -192,18 +197,42 @@ function App() {
             Outdoor Temp
           </div>
 
-          {/* We override the global h2 color by using inline color here */}
-          <h2 style={{ 
-            fontSize: "3rem", 
-            margin: "10px 0", 
-            color: '#000000', // FORCE WHITE
-            lineHeight: '1' 
-          }}>
-            {weather.temp}°C
-          </h2>
+            {/* We override the global h2 color by using inline color here */}
+            <h2 style={{ 
+              fontSize: "3rem", 
+              margin: "10px 0", 
+              color: '#000000', // FORCE WHITE
+              lineHeight: '1' 
+            }}>
+              {weather.temp}°C
+            </h2>
         </div>
 
-        <div style={{ height: '60px', width: '2px', background: 'rgba(255,255,255,0.1)' }}></div>
+        {/* ICON WRAPPER */}
+        {weather.iconUrl && (
+          <div style={{
+            background: '#9f9f9f',        // Slightly darker gray for better contrast
+            borderRadius: '50%',
+            width: '160px',               // Reduced size slightly to prevent over-stretching
+            height: '160px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '4px solid #ffffff', 
+            boxShadow: '0 4px 15px rgba(0,0,0,0.2)', // Soft outer shadow instead of inset
+            marginRight: '20px'
+          }}>
+            <img 
+              src={weather.iconUrl} 
+              alt="Weather Icon" 
+              style={{ 
+                width: '140px', 
+                height: '140px',
+                imageRendering: 'auto' // Set to auto if using @4x
+              }} 
+            />
+          </div>
+        )}
 
         <div style={{ textAlign: 'center' }}>
           <div style={{ 
