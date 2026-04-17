@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
+import { useRef } from "react";
 import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -55,83 +56,173 @@ function Clock() {
 }
 
 function App() {
+  const requestIdRef = useRef(0);
   const [values, setValues] = useState([0, 0, 0, 0]);
 
+  const [weather, setWeather] = useState({ temp: "--", humidity: "--", city: "Loading..."})
+
+  // 1. Function to fetch weather from the Internet
+  const fetchWeather = async () => {
+    const API_KEY = '248f412a8c643e556aa678313c7fc164'; // 👈 Put your key here
+    const CITY = 'Waterloo,CA'; // 👈 Change to your city
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&units=metric&appid=${API_KEY}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.main) {
+        setWeather({
+          temp: Math.round(data.main.temp),
+          humidity: data.main.humidity,
+          city: data.name
+        });
+      }
+    } catch (error) {
+      console.error("Weather fetch failed:", error);
+    }
+  };
+
   const fetchData = () => {
+    const currentRequestId = ++requestIdRef.current; 
     const url =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSN5qPhWup61lFgFwM89RmJKmCK_cE3dpoIWB0nrMAJ8m__DG9JHPsAkFDxlisDkYMxw1y4LjUkEzDt/pub?gid=0&single=true&output=csv";
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSN5qPhWup61lFgFwM89RmJKmCK_cE3dpoIWB0nrMAJ8m__DG9JHPsAkFDxlisDkYMxw1y4LjUkEzDt/pub?gid=0&single=true&output=csv"  +
+    `&t=${Date.now()}`;
+
+
 
     Papa.parse(url, {
       download: true,
       complete: (result) => {
+        if (currentRequestId !== requestIdRef.current) return;
         const rows = result.data;
         const percentageRow = rows[8];
 
         const tankValues = percentageRow
           .slice(2, 6)
-          .map((v) => parseFloat(v) || 0);
+          .map((v) => parseFloat(v));
 
-        setValues(tankValues);
+        if (tankValues.every((v) => !isNaN(v))) {
+          setValues(tankValues);
+        }
       },
     });
   };
 
   useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 10000);
-    return () => clearInterval(interval);
+    fetchData(); //Tank data
+    fetchWeather(); //Initial weather fetch
+
+    const tankInterval = setInterval(fetchData, 10000);
+
+    const weatherInterval = setInterval(fetchWeather, 600000);
+
+    return () => {
+      clearInterval(tankInterval);
+      clearInterval(weatherInterval);
+    };
   }, []);
 
   const labels = ["Tank 1", "Tank 2", "Tank 3", "Tank 4"];
 
-  const colors = ["#4CAF50", "#2196F3", "#FFC107", "#F44336"];
+  const colors = ["#4CAF50", "#F44336", "#2196F3", "#FFC107"];
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: 20, fontFamily: 'Arial, sans-serif', backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
       {/* TOP BAR */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20}}>
-        <h1>Nitrogen Tank Status</h1>
-
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
+        <div>
+          <h1 style={{ margin: 0 }}>Nitrogen Tank Status</h1>
+        </div>
+        <p style={{ margin: 0, color: '#666', fontWeight: 'bold', fontSize: '1.2rem' }}>
+             📍 {weather.city}
+        </p>
         <div style={{ fontSize: 72, fontWeight: "bold" }}>
           <Clock />
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 20, flexWrap: "nowrap", justifyContent: "center"}}>
+      {/* CHARTS */}
+      <div style={{ display: "flex", gap: 20, flexWrap: "nowrap", justifyContent: "center", marginBottom: 60 }}>
         {values.map((val, i) => {
           const data = {
             labels: [labels[i], "Remaining"],
-            datasets: [
-              {
-                data: [val, 1 - val],
-                backgroundColor: [colors[i], "#e0e0e0"],
-                borderWidth: 0,
-                centerValue: val,
-              },
-            ],
+            datasets: [{
+              data: [val, 1 - val],
+              backgroundColor: [colors[i], "#e0e0e0"],
+              borderWidth: 0,
+              centerValue: val,
+            }],
           };
 
           const options = {
             cutout: "75%",
             plugins: {
-              tooltip: {
-                callbacks: {
-                  label: (ctx) => `${(ctx.raw * 100).toFixed(0)}%`,
-                },
-              },
-              legend: {
-                display: false,
-              },
+              legend: { display: false },
+              tooltip: { enabled: true }
             },
           };
 
           return (
-            <div key={i} style={{ flex: "1 1 0", minWidth: 0, textAlign: "center" }}>
-              <h3>{labels[i]}</h3>
+            <div key={i} style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", background: 'white', padding: '15px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+              <h3 style={{ marginTop: 0 }}>{labels[i]}</h3>
               <Doughnut data={data} options={options} />
             </div>
           );
         })}
+      </div>
+
+      {/* BOTTOM BAR: AMBIENT DATA FROM INTERNET */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-around", 
+        padding: '30px', 
+        background: '#ffffff', 
+        color: 'white', 
+        borderRadius: '15px',
+        alignItems: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          {/* Using a <div> instead of <span> to avoid inherited text styles */}
+          <div style={{ 
+            textTransform: 'uppercase', 
+            fontSize: '2rem', 
+            letterSpacing: '2px', 
+            color: '#000000' // Light gray
+          }}>
+            Outdoor Temp
+          </div>
+
+          {/* We override the global h2 color by using inline color here */}
+          <h2 style={{ 
+            fontSize: "4rem", 
+            margin: "10px 0", 
+            color: '#000000', // FORCE WHITE
+            lineHeight: '1' 
+          }}>
+            {weather.temp}°C
+          </h2>
+        </div>
+
+        <div style={{ height: '60px', width: '2px', background: 'rgba(255,255,255,0.1)' }}></div>
+
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ 
+            textTransform: 'uppercase', 
+            fontSize: '2rem', 
+            letterSpacing: '2px', 
+            color: '#000000' 
+          }}>
+            Outdoor Humidity
+          </div>
+          <h2 style={{ 
+            fontSize: "4rem", 
+            margin: "10px 0", 
+            color: '#000000', // FORCE WHITE
+            lineHeight: '1'
+          }}>
+            {weather.humidity}%
+          </h2>
+        </div>
       </div>
     </div>
   );
