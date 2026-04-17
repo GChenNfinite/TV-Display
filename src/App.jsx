@@ -63,7 +63,7 @@ function App() {
 
   // 1. Function to fetch weather from the Internet
   const fetchWeather = async () => {
-    const API_KEY = '248f412a8c643e556aa678313c7fc164'; // 👈 Put your key here
+    const API_KEY = import.meta.env.VITE_WEATHER_KEY; // 👈 Put your key here
     const CITY = 'Waterloo,CA'; // 👈 Change to your city
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&units=metric&appid=${API_KEY}`;
 
@@ -127,9 +127,9 @@ function App() {
   const colors = ["#4CAF50", "#F44336", "#2196F3", "#FFC107"];
 
   return (
-    <div style={{ padding: 20, fontFamily: 'Arial, sans-serif', backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
+    <div style={{ marginTop: 20, fontFamily: 'Arial, sans-serif', backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
       {/* TOP BAR */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
         <div>
           <h1 style={{ margin: 0 }}>Nitrogen Tank Status</h1>
         </div>
@@ -142,7 +142,7 @@ function App() {
       </div>
 
       {/* CHARTS */}
-      <div style={{ display: "flex", gap: 20, flexWrap: "nowrap", justifyContent: "center", marginBottom: 60 }}>
+      <div style={{ display: "flex", gap: 0, flexWrap: "nowrap", justifyContent: "center", marginBottom: 20 }}>
         {values.map((val, i) => {
           const data = {
             labels: [labels[i], "Remaining"],
@@ -163,7 +163,7 @@ function App() {
           };
 
           return (
-            <div key={i} style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", background: 'white', padding: '15px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+            <div key={i} style={{ flex: "1 1 0", minWidth: 0, textAlign: "center", background: 'white', padding: '15px' }}>
               <h3 style={{ marginTop: 0 }}>{labels[i]}</h3>
               <Doughnut data={data} options={options} />
             </div>
@@ -207,7 +207,7 @@ function App() {
 
         <div style={{ textAlign: 'center' }}>
           <div style={{ 
-            textTransform: 'uppercase', 
+            textTransform: 'uppercase',
             fontSize: '2rem', 
             letterSpacing: '2px', 
             color: '#000000' 
