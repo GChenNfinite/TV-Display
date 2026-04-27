@@ -11,7 +11,7 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// 👉 Plugin for center text
+// 👉 Plugin for centering text
 const centerTextPlugin = {
   id: "centerText",
   beforeDraw(chart) {
@@ -41,7 +41,7 @@ const centerTextPlugin = {
 
 ChartJS.register(centerTextPlugin);
 
-function Clock() {
+function Clock() { //Running clock to get the current time
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -55,24 +55,24 @@ function Clock() {
   return time.toLocaleTimeString();
 }
 
-function App() {
+function App() { bulk code for webpage
   const requestIdRef = useRef(0);
+  //sets the initial values
   const [values, setValues] = useState([0, 0, 0, 0]);
+  const [weather, setWeather] = useState({ temp: "--", humidity: "--", city: "Loading...", iconUrl: ""});
 
-  const [weather, setWeather] = useState({ temp: "--", humidity: "--", city: "Loading...", iconUrl: ""})
-
-  // 1. Function to fetch weather from the Internet
+  // Fetch weather from the Internet
   const fetchWeather = async () => {
     const API_KEY = import.meta.env.VITE_WEATHER_KEY; // 👈 Put your key here
     const CITY = 'Waterloo,CA'; // 👈 Change to your city
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&units=metric&appid=${API_KEY}`;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&units=metric&appid=${API_KEY}`; //uses open weather map
 
     try {
       const response = await fetch(url);
       const data = await response.json();
       if (data.main && data.weather) {
         const iconCode = data.weather[0].icon;
-        const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+        const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@4x.png`; //fetching icons
 
         setWeather({
           temp: Math.round(data.main.temp),
@@ -86,7 +86,7 @@ function App() {
     }
   };
 
-  const fetchData = () => {
+  const fetchData = () => { //fetching data from the google sheets for N2 tank values
     const currentRequestId = ++requestIdRef.current; 
     const url =
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vSN5qPhWup61lFgFwM89RmJKmCK_cE3dpoIWB0nrMAJ8m__DG9JHPsAkFDxlisDkYMxw1y4LjUkEzDt/pub?gid=0&single=true&output=csv"  +
@@ -112,7 +112,7 @@ function App() {
     });
   };
 
-  useEffect(() => {
+  useEffect(() => {  //sets interval for when we fetch tank and weather values
     fetchData(); //Tank data
     fetchWeather(); //Initial weather fetch
 
@@ -126,10 +126,12 @@ function App() {
     };
   }, []);
 
+  //labels & colors
   const labels = ["Tank 1", "Tank 2", "Tank 3", "Tank 4"];
 
   const colors = ["#4CAF50", "#F44336", "#2196F3", "#FFC107"];
 
+  //creating UI
   return (
     <div style={{ marginTop: 20, fontFamily: 'Arial, sans-serif', backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
       {/* TOP BAR */}
