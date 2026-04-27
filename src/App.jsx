@@ -59,7 +59,7 @@ function App() { bulk code for webpage
   const requestIdRef = useRef(0);
   //sets the initial values
   const [values, setValues] = useState([0, 0, 0, 0]);
-  const [weather, setWeather] = useState({ temp: "--", humidity: "--", city: "Loading...", iconUrl: ""});
+  const [weather, setWeather] = useState({ temp: "--", humidity: "--", city: "Loading...", iconUrl: ""})
 
   // Fetch weather from the Internet
   const fetchWeather = async () => {
