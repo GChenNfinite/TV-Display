@@ -55,7 +55,7 @@ function Clock() { //Running clock to get the current time
   return time.toLocaleTimeString();
 }
 
-function App() { bulk code for webpage
+function App() { //bulk code for webpage
   const requestIdRef = useRef(0);
   //sets the initial values
   const [values, setValues] = useState([0, 0, 0, 0]);
